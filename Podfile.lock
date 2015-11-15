@@ -1,0 +1,13 @@
+PODS:
+  - ImageLoader (0.6.3)
+  - ObjectMapper (1.0.1)
+
+DEPENDENCIES:
+  - ImageLoader
+  - ObjectMapper (~> 1.0.1)
+
+SPEC CHECKSUMS:
+  ImageLoader: 02f5df9161a7723e4e9bf697da642a789897429b
+  ObjectMapper: 98524bac0dca46c6b3d5ee02cd410fc700ec6ce2
+
+COCOAPODS: 0.39.0

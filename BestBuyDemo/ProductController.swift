@@ -136,7 +136,7 @@ class ProductController: UIViewController {
         priceLabel.text = "$" + String(productDetail.regularPrice)
         descriptionTextView.text = productDetail.shortDescription!.stringByDecodingHTMLEntities
         
-        let URL = domain + productDetail.thumbnailImage!
+        let URL = productDetail.thumbnailImage!
         let placeholder = UIImage(named: "placeholder.png")!
         productImageView.load(URL, placeholder: placeholder) {
             URL, image, error, cacheType in

@@ -152,7 +152,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         cell.priceLabel?.text = "$" + String(product.regularPrice)
         cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         
-        let URL = domain + product.thumbnailImage!
+        let URL = product.thumbnailImage!
         let placeholder = UIImage(named: "placeholder.png")!
         cell.placeHolderImageView.load(URL, placeholder: placeholder) {
             URL, image, error, cacheType in

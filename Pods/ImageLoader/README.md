@@ -1,10 +1,10 @@
 ImageLoader
 =======
 [![Build-Status](https://api.travis-ci.org/hirohisa/ImageLoaderSwift.svg?branch=master)](https://travis-ci.org/hirohisa/ImageLoaderSwift)
-[![GitHub-version](https://img.shields.io/github/tag/hirohisa/ImageLoaderSwift.svg)](https://github.com/hirohisa/ImageLoaderSwift/tags)
+[![CocoaPods](https://img.shields.io/cocoapods/v/ImageLoader.svg)](https://cocoapods.org/pods/ImageLoader)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![codecov.io](https://codecov.io/github/hirohisa/ImageLoaderSwift/coverage.svg?branch=master)](https://codecov.io/github/hirohisa/ImageLoaderSwift?branch=master)
 [![license](https://img.shields.io/badge/license-MIT-000000.svg)](https://github.com/hirohisa/ImageLoaderSwift/blob/master/LICENSE)
-[]([![Test-Coverage](https://img.shields.io/coveralls/hirohisa/ImageLoaderSwift/master.svg)](https://coveralls.io/r/hirohisa/ImageLoaderSwift))
 
 ImageLoader is an instrument for asynchronous image loading written in Swift. It is a lightweight and fast image loader for iOS.
 
@@ -13,12 +13,13 @@ Features
 
 - [x] Simple methods with UIImageView Category.
 - [x] Control Loader to resume, suspend and cancel with URL.
-- [x] A module for cache can be set by yourself and default cache (Diskcache) uses disk spaces and un-uses memory.
+- [x] A module for cache can be set by yourself and default cache (Disk) uses disk spaces and un-uses memory.
 - [x] Loading images is handled by ImageLoader, not UIImageView.
 - [x] After image view start loading another image, previous loading task is possible to live with caching.
 - [x] Support `NSURL`, `String` and `NSURLComponents` by `URLLiteralConvertible`
 - [ ] Optimize to use memory when image is set.
-- [ ] Comprehensive Unit Test Coverage
+- [x] Support image type .jpeg, .png
+- [x] Comprehensive Unit Test Coverage
 
 Requirements
 ----------
@@ -94,12 +95,14 @@ Usage
 
 **load**
 ```swift
+import ImageLoader
 
 ImageLoader.load("http://image").completionHandler { _ in }
 ```
 
 **suspend**
 ```swift
+import ImageLoader
 
 ImageLoader.suspend("http://image")
 ```
@@ -108,6 +111,7 @@ ImageLoader.suspend("http://image")
 #### UIImageView Category
 
 ```swift
+import ImageLoader
 
 imageView.load("http://image")
 ```
@@ -115,6 +119,7 @@ imageView.load("http://image")
 or
 
 ```swift
+import ImageLoader
 
 imageView.load("http://image", placeholder: nil) { _ in ... }
 ```

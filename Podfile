@@ -4,17 +4,17 @@ platform :ios, '9.0'
 use_frameworks!
 
 target 'BestBuyDemo' do
-	pod 'ObjectMapper', '~> 1.0.1'
+	pod 'ObjectMapper', '~> 1.2'
     pod 'ImageLoader'
 end
 
 target 'BestBuyDemoTests' do
-	pod 'ObjectMapper', '~> 1.0.1'
+	pod 'ObjectMapper', '~> 1.2'
     pod 'ImageLoader'
 end
 
 target 'BestBuyDemoUITests' do
-	pod 'ObjectMapper', '~> 1.0.1'
+	pod 'ObjectMapper', '~> 1.2'
     pod 'ImageLoader'
 end
 

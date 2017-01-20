@@ -2,8 +2,8 @@
 //  ProductController.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-27.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import UIKit
@@ -16,7 +16,7 @@ class ProductController: UIViewController {
     let lang = Constants.Lang
     
     var sku: String?
-    var task: NSURLSessionDataTask?
+    var task: URLSessionDataTask?
     
     @IBOutlet weak var addToCartButton: UIButton!
     @IBOutlet weak var productNameLabel: UILabel!
@@ -26,7 +26,7 @@ class ProductController: UIViewController {
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    @IBAction func addToCartPressed(sender: UIButton) {
+    @IBAction func addToCartPressed(_ sender: UIButton) {
         ViewUtils.showOKMessage(self, title:"Info", message:"Product added to cart")
     }
     
@@ -34,38 +34,40 @@ class ProductController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        print("ProductController - viewDidLoad")
+        
         if let newSku = sku {
             searchProduct(newSku)
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
-        separatorTopView.hidden = true
-        productNameLabel.hidden = true
-        addToCartButton.hidden = true
-        productImageView.hidden = true
-        priceLabel.hidden = true
-        descriptionTextView.hidden = true
-        activityIndicator.hidden = false
+    override func viewWillAppear(_ animated: Bool) {
+        separatorTopView.isHidden = true
+        productNameLabel.isHidden = true
+        addToCartButton.isHidden = true
+        productImageView.isHidden = true
+        priceLabel.isHidden = true
+        descriptionTextView.isHidden = true
+        activityIndicator.isHidden = false
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         // Need auto layout to kick in before adding border
-        separatorTopView.addTopBorderWithColor(UIColor.lightGrayColor(), width: 1.0)
+        separatorTopView.addTopBorderWithColor(UIColor.lightGray, width: 1.0)
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         if let newTask = task {
             print("viewWillDisappear : task.state = \(newTask.state.description)")
-            if newTask.state == NSURLSessionTaskState.Running {
+            if newTask.state == URLSessionTask.State.running {
                 newTask.cancel()
                 print("viewWillDisappear : task canceled")
             }
         }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -79,48 +81,43 @@ class ProductController: UIViewController {
     /// - parameters:
     ///   - skuText: the text used to search product detail
     ///
-    func searchProduct(skuText: String) {
-        let langCodeArr = lang.componentsSeparatedByString("-")
+    func searchProduct(_ skuText: String) {
+        let langCodeArr = lang.components(separatedBy: "-")
         let productUrl = String(format: Constants.ProductUrl, skuText, langCodeArr[0])
         
         print("Product url : \(productUrl)")
         
-        let request = NSMutableURLRequest(URL: NSURL(string: productUrl)!)
-        request.HTTPMethod = "GET"
+        var request = URLRequest(url: URL(string: productUrl)!)
+        request.httpMethod = "GET"
         
-        let session = NSURLSession.sharedSession()
-        task = session.dataTaskWithRequest(request) {
+        let session = URLSession.shared
+        task = session.dataTask(with: request, completionHandler: {
             (data, response, error) -> Void in
             
-            if (error == nil) {                
-                let productDetail = Mapper<ProductDetail>().map(NSString(data: data!, encoding: NSUTF8StringEncoding)!)
+            if (error == nil) {
+                let productDetail = Mapper<ProductDetail>().map(JSONString: String(data: data!, encoding: String.Encoding.utf8)!)
                 
                 if productDetail != nil {
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         self.activityIndicator.stopAnimating()
-                        self.activityIndicator.hidden = true
-                        
+                        self.activityIndicator.isHidden = true
                         self.updateGUI(productDetail!)
                     })
                 } else {
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         self.activityIndicator.stopAnimating()
-                        self.activityIndicator.hidden = true
-                        
+                        self.activityIndicator.isHidden = true
                         ViewUtils.showOKMessage(self, title:"Error", message:"Error parsing data")
                     })
                 }
             } else {
-                if error!.code != NSURLErrorCancelled {
-                    dispatch_async(dispatch_get_main_queue(), {
-                        self.activityIndicator.stopAnimating()
-                        self.activityIndicator.hidden = true
-                        
-                        ViewUtils.showOKMessage(self, title:"Error", message:"Error retrieving data")
-                    })
-                }
+                DispatchQueue.main.async(execute: {
+                    self.activityIndicator.stopAnimating()
+                    self.activityIndicator.isHidden = true
+                    ViewUtils.showOKMessage(self, title:"Error", message:"Error retrieving data")
+                })
             }
-        }
+        })
         
         task!.resume()
     }
@@ -131,30 +128,29 @@ class ProductController: UIViewController {
     /// - parameters:
     ///   - productDetail: the ProductDetail to update gui with
     ///
-    func updateGUI(productDetail: ProductDetail) {
+    func updateGUI(_ productDetail: ProductDetail) {
         productNameLabel.text = productDetail.name
         priceLabel.text = "$" + String(productDetail.regularPrice)
         descriptionTextView.text = productDetail.shortDescription!.stringByDecodingHTMLEntities
         
-        let URL = productDetail.thumbnailImage!
-        let placeholder = UIImage(named: "placeholder.png")!
-        productImageView.load(URL, placeholder: placeholder) {
-            URL, image, error, cacheType in
-            
-            if cacheType == CacheType.None {
+        let url = productDetail.thumbnailImage!
+        productImageView.image = UIImage(named: "placeholder.png")
+        productImageView.load.request(with: url, onCompletion: { image, error, operation in
+            if operation == .network {
                 let transition = CATransition()
                 transition.duration = 0.5
                 transition.type = kCATransitionFade
-                self.productImageView.layer.addAnimation(transition, forKey: nil)
+                self.productImageView.layer.add(transition, forKey: nil)
                 self.productImageView.image = image
             }
-        }
+        })
         
-        separatorTopView.hidden = false
-        productNameLabel.hidden = false
-        addToCartButton.hidden = false
-        productImageView.hidden = false
-        priceLabel.hidden = false
-        descriptionTextView.hidden = false
+        separatorTopView.isHidden = false
+        productNameLabel.isHidden = false
+        addToCartButton.isHidden = false
+        productImageView.isHidden = false
+        priceLabel.isHidden = false
+        descriptionTextView.isHidden = false
     }
 }
+

@@ -2,8 +2,8 @@
 //  ProductDetail.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-23.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import UIKit
@@ -11,13 +11,14 @@ import ObjectMapper
 
 /// Class stores product detail info.
 class ProductDetail: Mappable {
+    
     var sku: String? = ""
     var name: String? = ""
     var regularPrice: Double! = 0.0
     var shortDescription: String? = ""
     var thumbnailImage: String? = ""
     
-    required init?(_ map: Map) {
+    required init?(map: Map) {
         
     }
     
@@ -34,3 +35,4 @@ class ProductDetail: Mappable {
         return "sku:\(sku!) name:\(name!) regularPrice:\(regularPrice!) shortDescription:\(shortDescription!) thumbnailImage:\(thumbnailImage!)"
     }
 }
+

@@ -2,19 +2,20 @@
 //  NSURLSessionTaskState+Helper.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-29.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import Foundation
 
-extension NSURLSessionTaskState: CustomStringConvertible {
+extension URLSessionTask.State: CustomStringConvertible {
+    
     public var description: String {
         switch (self) {
-            case .Running:   return "Running"
-            case .Suspended: return "Suspended"
-            case .Canceling: return "Canceling"
-            case .Completed: return "Completed"
+        case .running:   return "Running"
+        case .suspended: return "Suspended"
+        case .canceling: return "Canceling"
+        case .completed: return "Completed"
         }
     }
 }

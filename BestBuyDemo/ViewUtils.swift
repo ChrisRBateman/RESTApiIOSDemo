@@ -2,11 +2,10 @@
 //  ViewUtils.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-26.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 class ViewUtils {
@@ -19,9 +18,9 @@ class ViewUtils {
     ///   - title: the title
     ///   - message: the message
     ///
-    class func showOKMessage(view: UIViewController, title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-        view.presentViewController(alert, animated: true, completion: nil)
+    class func showOKMessage(_ view: UIViewController, title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+        view.present(alert, animated: true, completion: nil)
     }
 }

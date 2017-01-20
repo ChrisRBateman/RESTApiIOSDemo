@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-16.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import UIKit
@@ -23,7 +23,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var searchTableView: UITableView!
     
-    @IBAction func searchButtonPressed(sender: UIButton) {
+    @IBAction func searchButtonPressed(_ sender: UIButton) {
         if let searchText = searchTextField.text?.trim() {
             print("Search Button Pressed : |\(searchText)|")
             
@@ -39,11 +39,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        self.navigationController?.navigationBar.barStyle = UIBarStyle.Black
-        self.navigationController?.navigationBar.translucent = false
+        print("ViewController - viewDidLoad")
+        
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.black
+        self.navigationController?.navigationBar.isTranslucent = false
         let color = UIColor(hex: Constants.TitleBarColor)
         self.navigationController?.navigationBar.barTintColor = color
-        self.navigationController?.navigationBar.tintColor = UIColor.whiteColor()
+        self.navigationController?.navigationBar.tintColor = UIColor.white
         
         searchTableView.delegate = self
         searchTableView.dataSource = self
@@ -65,7 +67,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // Dispose of any resources that can be recreated.
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // delegate for textfield set in main.storyboard
         // Hide keyboard when Done tapped
         searchTextField.resignFirstResponder()
@@ -80,25 +82,25 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     /// - parameters:
     ///   - searchText: the text used to search products
     ///
-    func searchForProducts(searchText: String) {
-        let langCodeArr = lang.componentsSeparatedByString("-")
-        let newSearchText = searchText.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+    func searchForProducts(_ searchText: String) {
+        let langCodeArr = lang.components(separatedBy: "-")
+        let newSearchText = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         let searchUrl = String(format: Constants.SearchUrl, langCodeArr[0], newSearchText)
         
         print("Search url : \(searchUrl)")
         
-        let request = NSMutableURLRequest(URL: NSURL(string: searchUrl)!)
-        request.HTTPMethod = "GET"
+        var request = URLRequest(url: URL(string: searchUrl)!)
+        request.httpMethod = "GET"
         
-        let session = NSURLSession.sharedSession()
-        let task = session.dataTaskWithRequest(request) {
+        let session = URLSession.shared
+        let task = session.dataTask(with: request, completionHandler: {
             (data, response, error) -> Void in
             
             if (error == nil) {
-                let searchResults = Mapper<SearchResults>().map(NSString(data: data!, encoding: NSUTF8StringEncoding)!)
+                let searchResults = Mapper<SearchResults>().map(JSONString: String(data: data!, encoding: String.Encoding.utf8)!)
                 
                 if searchResults != nil {
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         self.activityIndicator.stopAnimating()
                         if let products = searchResults?.products {
                             self.products = products
@@ -106,27 +108,27 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                         }
                     })
                 } else {
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         self.activityIndicator.stopAnimating()
                         ViewUtils.showOKMessage(self, title:"Error", message:"Error parsing data")
                     })
                 }
             } else {
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     self.activityIndicator.stopAnimating()
                     ViewUtils.showOKMessage(self, title:"Error", message:"Error retrieving data")
                 })
             }
-        }
+        })
         
         task.resume()
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         if segue.identifier == Constants.ShowProductDetailSegue {
             // pass data to next view
             if sku != nil {
-                let pc = segue.destinationViewController as! ProductController
+                let pc = segue.destination as! ProductController
                 pc.sku = sku
             }
         }
@@ -134,62 +136,60 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     // MARK: UITableViewDataSource Methods
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return products.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let textCellIdentifier = "ProductCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(textCellIdentifier, forIndexPath: indexPath) as! ProductViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: textCellIdentifier, for: indexPath) as! ProductViewCell
         
         let row = indexPath.row
         let product = products[row]
         cell.nameLabel?.text = product.name
         cell.priceLabel?.text = "$" + String(product.regularPrice)
-        cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         
-        let URL = product.thumbnailImage!
-        let placeholder = UIImage(named: "placeholder.png")!
-        cell.placeHolderImageView.load(URL, placeholder: placeholder) {
-            URL, image, error, cacheType in
-            
-            if cacheType == CacheType.None {
+        let url = product.thumbnailImage!
+        cell.placeHolderImageView.image = UIImage(named: "placeholder.png")
+        cell.placeHolderImageView.load.request(with: url, onCompletion: { image, error, operation in
+            if operation == .network {
                 let transition = CATransition()
                 transition.duration = 0.5
                 transition.type = kCATransitionFade
-                cell.placeHolderImageView.layer.addAnimation(transition, forKey: nil)
+                cell.placeHolderImageView.layer.add(transition, forKey: nil)
                 cell.placeHolderImageView.image = image
             }
-        }
+        })
         
         return cell
     }
     
     // MARK: UITableViewDelegate Methods
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return "Products"
     }
     
-    func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         let header:UITableViewHeaderFooterView = view as! UITableViewHeaderFooterView
         
-        header.textLabel!.textColor = UIColor.grayColor()
-        header.textLabel!.font = UIFont.boldSystemFontOfSize(15)
+        header.textLabel!.textColor = UIColor.gray
+        header.textLabel!.font = UIFont.boldSystemFont(ofSize: 15)
         header.textLabel!.frame = header.frame
-        header.textLabel!.textAlignment = NSTextAlignment.Left
+        header.textLabel!.textAlignment = NSTextAlignment.left
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
         let product = products[indexPath.row]
         sku = product.sku
-        performSegueWithIdentifier(Constants.ShowProductDetailSegue, sender: self)
+        performSegue(withIdentifier: Constants.ShowProductDetailSegue, sender: self)
     }
 }
 

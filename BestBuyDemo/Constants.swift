@@ -2,15 +2,16 @@
 //  Constants.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-28.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import Foundation
 
 struct Constants {
+    
     static let Domain = "http://www.bestbuy.ca"
-    static let Lang = NSLocale.preferredLanguages()[0]
+    static let Lang = Locale.preferredLanguages[0]
     static let ShowProductDetailSegue = "showProductDetail"
     
     static let SearchUrl = Domain + "/api/v2/json/search?lang=%@&query=%@"

@@ -2,8 +2,8 @@
 //  SearchResults.swift
 //  BestBuyDemo
 //
-//  Created by Chris Bateman on 2015-10-23.
-//  Copyright © 2015 Chris Bateman. All rights reserved.
+//  Created by Chris Bateman on 2017-01-17.
+//  Copyright © 2017 Chris Bateman. All rights reserved.
 //
 
 import UIKit
@@ -11,11 +11,12 @@ import ObjectMapper
 
 /// Class stores results of search.
 class SearchResults: Mappable {
+    
     var Brand: String? = ""
     var pageSize: Int? = 0
     var products: [Product]?
     
-    required init?(_ map: Map) {
+    required init?(map: Map) {
         
     }
     
